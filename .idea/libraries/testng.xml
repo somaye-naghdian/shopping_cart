@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="testng">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/snakeyaml-1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/testng-7.1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/guice-4.1.0-no_aop.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/jcommander-1.72.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/javax.inject-1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/aopalliance-1.0.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../java librarys/testng/guava-19.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

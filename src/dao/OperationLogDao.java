@@ -1,6 +1,5 @@
 package dao;
 
-import entity.Customer;
 import entity.OperationLog;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -17,7 +16,7 @@ public class OperationLogDao {
     Session session = null;
     Transaction transaction = null;
 
-    public void insertOperationLog(OperationLog operationLog, Customer customer) {
+/*    public void insertOperationLog(OperationLog operationLog, Customer customer) {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             transaction = session.beginTransaction();
@@ -30,7 +29,7 @@ public class OperationLogDao {
         } finally {
             session.close();
         }
-    }
+    }*/
 
     public ArrayList<OperationLog> getOperationList(String inputStartDate, String inputEndDate) {
         List<OperationLog> operationLogList = null;

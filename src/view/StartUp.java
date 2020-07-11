@@ -1,19 +1,20 @@
 package view;
 
-import entity.Customer;
+import entity.User;
 import service.AdminService;
-import service.CustomerService;
-import service.ProductService;
+import service.ShoppingCartService;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Startup {
-    public void start(){
+public class StartUp {
+
+    public void start() {
         Scanner scanner = new Scanner(System.in);
-        CustomerService customerService = new CustomerService();
-        ProductService productService = new ProductService();
-        AdminService adminService = new AdminService();
+        CustomerView customerView = new CustomerView();
+        ShoppingCartService shoppingCartService = new ShoppingCartService();
+        AdminView adminView = new AdminView();
+        AdminService adminService =new AdminService();
         int input = 0;
         System.out.print("  Log in     - press 1" + "\n" + "new customer - press 2\n" +
                 "\tAdmin    - press 3\n");
@@ -21,16 +22,17 @@ public class Startup {
             input = scanner.nextInt();
             switch (input) {
                 case 1: {
-                    customerService.loginCustomer();
+                    customerView.loginCustomer();
                     break;
                 }
                 case 2: {
-                    Customer customer = customerService.customerRegister();
-                    productService.executeMenu(customer);
+                    User customer = customerView.customerRegister();
+                    shoppingCartService.executeMenu(customer);
                     break;
                 }
                 case 3: {
-                    adminService.loginAdmin();
+                    adminService.createAdmin();
+                    adminView.loginAdmin();
                     break;
                 }
             }
@@ -39,3 +41,4 @@ public class Startup {
         }
     }
 }
+

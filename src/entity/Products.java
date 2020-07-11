@@ -1,26 +1,42 @@
 package entity;
 
+import javax.persistence.*;
 import java.util.Objects;
 
+@Entity
 public class Products {
-    private int productId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String category;
     private String name;
     private double price;
     private int stock;
     private String brand;
+    @ManyToOne
+    private ShoppingCart shoppingCart;
 
-    public Products(int productId, String branch, String name, double price, int stock, String brand) {
-        this.productId = productId;
-        this.category = branch;
-        this.name = name;
-        this.price = price;
-        this.stock = stock;
-        this.brand = brand
-        ;
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
+    }
+
+    public double getPrice() {
+        return price;
     }
 
     public Products() {
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getCategory() {
@@ -37,18 +53,6 @@ public class Products {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
-    public double getPrice() {
-        return price;
     }
 
     public void setPrice(double price) {
@@ -76,24 +80,23 @@ public class Products {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Products products = (Products) o;
-        return productId == products.productId &&
+        return
                 Double.compare(products.price, price) == 0 &&
-                stock == products.stock &&
-                Objects.equals(category, products.category) &&
-                Objects.equals(name, products.name) &&
-                Objects.equals(brand, products.brand);
+                        stock == products.stock &&
+                        Objects.equals(category, products.category) &&
+                        Objects.equals(name, products.name) &&
+                        Objects.equals(brand, products.brand);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productId, category, name, price, stock, brand);
+        return Objects.hash(category, name, price, stock, brand);
     }
 
     @Override
     public String toString() {
         return "Products{" +
-                "productId=" + productId +
-                ", branch='" + category + '\'' +
+                " branch='" + category + '\'' +
                 ", name='" + name + '\'' +
                 ", price=" + price +
                 ", stock=" + stock +

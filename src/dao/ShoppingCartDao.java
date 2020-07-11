@@ -24,5 +24,19 @@ public class ShoppingCartDao {
             session.close();
         }
     }
+    public  void deleteFromShoppingCart(ShoppingCart shoppingCart){
+        try {
+            Session  session = HibernateUtil.getSessionFactory().openSession();
+            Transaction  transaction = session.beginTransaction();
+
+            session.delete(shoppingCart);
+
+            transaction.commit();
+            session.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

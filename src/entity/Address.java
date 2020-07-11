@@ -1,20 +1,24 @@
 package entity;
 
+import javax.persistence.*;
 import java.util.Objects;
-
+@Entity
 public class Address {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String province, city, street;
     private int zipCode;
-    Customer customer;
+    @OneToOne(cascade = CascadeType.ALL)
+    private User user;
 
-    public Address(String province, String city, String street, int zipCode) {
-        this.province = province;
-        this.city = city;
-        this.street = street;
-        this.zipCode = zipCode;
+
+    public Integer getId() {
+        return id;
     }
 
-    public Address() {
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getProvince() {
@@ -49,12 +53,12 @@ public class Address {
         this.zipCode = zipCode;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public User getUser() {
+        return user;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
@@ -65,13 +69,13 @@ public class Address {
         return zipCode == address.zipCode &&
                 Objects.equals(province, address.province) &&
                 Objects.equals(city, address.city) &&
-                Objects.equals(street, address.street) &&
-                Objects.equals(customer, address.customer);
+                Objects.equals(street, address.street);
+        //  && Objects.equals(customer, address.customer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(province, city, street, zipCode, customer);
+        return Objects.hash(province, city, street, zipCode);
     }
 
     @Override
@@ -81,7 +85,7 @@ public class Address {
                 ", city='" + city + '\'' +
                 ", street='" + street + '\'' +
                 ", zipCode=" + zipCode +
-                ", customer=" + customer +
+                ", user=" + user +
                 '}';
     }
 }

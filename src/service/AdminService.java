@@ -1,54 +1,36 @@
 package service;
 
-import utility.AgeComparator;
-import dao.AdminDao;
 import dao.OperationLogDao;
-import entity.Customer;
+import dao.UserDao;
+import entity.Address;
 import entity.OperationLog;
+import entity.User;
+import utility.AgeComparator;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static service.CustomerService.customerDao;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 public class AdminService {
-    AdminDao adminDao = new AdminDao();
+    UserDao userDao = new UserDao();
+    ArrayList<User> adminList = new ArrayList<>();
 
-    public void loginAdmin() {
-        try {
-
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("enter username : ");
-            String username = scanner.next();
-            System.out.println("enter password : ");
-            String password = scanner.next();
-            if (adminDao.passwordValidation(username, password) != null) {
-                System.out.print("enter your request: 1 :: for sort Customers with ages \n " +
-                        "\t\t\t        2 :: for customer activity in month ");
-                int adminInput = scanner.nextInt();
-                switch (adminInput) {
-                    case 1:
-                        getCustomerAge();
-                    case 2:
-                        System.out.println("enter start date with pattern \"yyyy-MM-dd\" ");
-                       String startDate= scanner.next();
-                        getCustomerActivity(startDate);
-                }
-            } else {
-                System.out.println("invalid Admin ");
-                return;
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("username or password is invalid ");
+    public boolean validate(User admin) {
+        System.out.println(adminList);
+        if (adminList.contains(admin)) {
+            return true;
         }
+        return false;
     }
 
     public void getCustomerAge() {
-        ArrayList<Customer> customers;
-        customers = customerDao.getCustomerList();
+        ArrayList<User> customers;
+        customers = userDao.getUserList();
         Collections.sort(customers, new AgeComparator());
-        for (Customer customer :
+        for (User customer :
                 customers) {
             System.out.println(customer);
         }
@@ -57,22 +39,48 @@ public class AdminService {
     public void getCustomerActivity(String inputDate) {
         Calendar c = Calendar.getInstance();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        try{
+        try {
             c.setTime(sdf.parse(inputDate));
-        }catch(ParseException e){
+        } catch (ParseException e) {
             e.printStackTrace();
         }
         c.add(Calendar.DAY_OF_MONTH, 30);
         String endDate = sdf.format(c.getTime());
 
         OperationLogDao operationLogDao = new OperationLogDao();
-        List<OperationLog> operationLogs = operationLogDao.getOperationList(inputDate,endDate);
+        List<OperationLog> operationLogs = operationLogDao.getOperationList(inputDate, endDate);
         for (OperationLog operationLog :
                 operationLogs) {
             System.out.print("user: " + operationLog.getAuthority() + " | ");
             System.out.print("operation: " + operationLog.getOperation() + " | ");
             System.out.print("date: " + operationLog.getDate() + " | ");
-            System.out.print("time: " + operationLog.getTime() + "\n");
+
         }
     }
+
+    public void createAdmin() {
+
+        User admin1 = new User();
+        admin1.setName("admin1");
+        admin1.setFamily("admin1");
+        admin1.setEmail("admin1@gmail.com");
+        admin1.setAge(40);
+        admin1.setPhone("125-1458790");
+        admin1.setUserName("admin12345");
+        admin1.setPassword("admin12345");
+        String province = "Tehran";
+        String city = "Tehran";
+        String street = "jamejam";
+        int postalCode = 1234;
+        Address adminAddress = new Address();
+        adminAddress.setProvince(province);
+        adminAddress.setCity(city);
+        adminAddress.setStreet(street);
+        adminAddress.setZipCode(postalCode);
+        admin1.setAddress(adminAddress);
+        userDao.insertUser(admin1);
+        adminList.add(admin1);
+    }
+
+
 }

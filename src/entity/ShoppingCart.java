@@ -1,37 +1,43 @@
 package entity;
 
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
 
+@Entity
 public class ShoppingCart {
-    private  static ShoppingCart singletonInstance = new ShoppingCart();
-    public static ShoppingCart getInstance(){
-        return  singletonInstance;
-    }
+
     public ShoppingCart() {
         capacity = 5;
     }
 
-
-    private Customer customer;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Integer id;
     private int itemCount;
     private double totalPrice;
     private int capacity;
-     List<Products> productList;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+    @OneToMany
+    List<Products> productList;
 
-    public ShoppingCart(Customer customer, int itemCount) {
-        this.customer = customer;
-        this.itemCount = itemCount;
-        capacity = 5;
+
+    public Integer getId() {
+        return id;
     }
 
-
-    public Customer getCustomer() {
-        return customer;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public int getItemCount() {
@@ -51,11 +57,11 @@ public class ShoppingCart {
     }
 
     public int getCapacity() {
-        return capacity;
+        return 5;
     }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
+    public void setCapacity() {
+        this.capacity = 5;
     }
 
     public List<Products> getProductList() {
@@ -74,19 +80,19 @@ public class ShoppingCart {
         return itemCount == that.itemCount &&
                 Double.compare(that.totalPrice, totalPrice) == 0 &&
                 capacity == that.capacity &&
-                Objects.equals(customer, that.customer) &&
+                Objects.equals(user, that.user) &&
                 Objects.equals(productList, that.productList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(customer, itemCount, totalPrice, capacity, productList);
+        return Objects.hash(itemCount, totalPrice, capacity, productList);
     }
 
     @Override
     public String toString() {
         return "ShoppingBasket{" +
-                "customer=" + customer +
+                "user=" + user +
                 ", itemCount=" + itemCount +
                 ", totalPrice=" + totalPrice +
                 ", capacity=" + capacity +

@@ -1,37 +1,44 @@
 package dao;
 
 import entity.Admin;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
 
 public class AdminDao {
-    ConnectionDao connectionDao = new ConnectionDao();
+    Session session = null;
+    Transaction transaction = null;
 
-
-    public Admin passwordValidation(String username, String password) {
+    public Admin passwordValidation(String inputUsername, String inputPassword) {
+        String passwordQuery = null;
+        List<Admin> adminList;
+        Admin admin = new Admin();
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select username,pass" +
-                    " from admin where username = '" + username + "'and pass = '" + password + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery(query);
-            while (resultSet.next()) {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            String hql = " from Admin a where a.username =:inputUsername";
+            Query query = session.createQuery(hql, Admin.class).setParameter("inputUsername", inputUsername);
+            adminList = query.list();
 
-                String username1 = resultSet.getString("username");
-                String password1 = resultSet.getString("pass");
-                Admin admin = new Admin();
-                admin.setUsername(username1);
-                admin.setPassword(password1);
-                return admin;
+            for (Iterator iterator = adminList.iterator(); iterator.hasNext(); ) {
+                admin = (Admin) iterator.next();
+                passwordQuery = admin.getPassword();
             }
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
+            if (passwordQuery.equals(inputPassword)) {
+                admin.setUsername(inputUsername);
+                admin.setPassword(passwordQuery);
+            }
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return null;
+        return admin;
     }
 }

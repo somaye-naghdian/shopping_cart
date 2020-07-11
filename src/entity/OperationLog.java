@@ -1,15 +1,29 @@
 package entity;
 
-import java.sql.Time;
-import java.sql.Date;
+import service.OperationsType;
 
+import javax.persistence.*;
+
+
+import java.util.Date;
+import java.util.Objects;
+
+@Entity
 public class OperationLog {
-    private Time time;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    @Temporal(value = TemporalType.TIME)
+    private Date time;
+    @Temporal(value = TemporalType.DATE)
     private Date date;
-    private String operation;
+    private OperationsType operation;
     private String authority;
+    @OneToOne(cascade = CascadeType.ALL)
+    private Customer customer;
 
-    public OperationLog(Time time, Date date, String operation, String authority) {
+
+    public OperationLog(Date time, Date date, OperationsType operation, String authority) {
         this.time = time;
         this.date = date;
         this.operation = operation;
@@ -20,13 +34,24 @@ public class OperationLog {
     public OperationLog() {
     }
 
-    public Time getTime() {
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+
+    public Date getTime() {
         return time;
     }
 
-    public void setTime(Time time) {
+    public void setTime(Date time) {
         this.time = time;
     }
+
 
     public Date getDate() {
         return date;
@@ -36,11 +61,11 @@ public class OperationLog {
         this.date = date;
     }
 
-    public String getOperation() {
+    public OperationsType getOperation() {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(OperationsType operation) {
         this.operation = operation;
     }
 
@@ -52,6 +77,30 @@ public class OperationLog {
         this.authority = authority;
     }
 
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OperationLog that = (OperationLog) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(time, that.time) &&
+                Objects.equals(date, that.date) &&
+                Objects.equals(operation, that.operation) &&
+                Objects.equals(authority, that.authority);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, date, operation, authority);
+    }
 
     @Override
     public String toString() {

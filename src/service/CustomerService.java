@@ -1,6 +1,5 @@
 package service;
 
-import dao.AddressDao;
 import dao.CustomerDao;
 import entity.Address;
 import entity.Customer;
@@ -12,7 +11,7 @@ public class CustomerService {
     static CustomerDao customerDao = new CustomerDao();
     static ProductService productService = new ProductService();
 
-    public  void loginCustomer() {
+    public void loginCustomer() {
         Scanner scanner = new Scanner(System.in);
         System.out.println("enter username : ");
         String username = scanner.next();
@@ -21,7 +20,7 @@ public class CustomerService {
         Customer customer = customerDao.passwordValidation(username, password);
         if (customerDao.passwordValidation(username, password) != null) {
             System.out.println("successful login");
-            productService.addActivity(customer,"LOGIN");
+            productService.addActivity(customer, OperationsType.LOGIN);
             productService.executeMenu(customer);
         } else {
             System.out.println("customer not fond ");
@@ -29,10 +28,9 @@ public class CustomerService {
         }
     }
 
-    public  Customer customerRegister() {
+    public Customer customerRegister() {
         Scanner scanner = new Scanner(System.in);
         CustomerDao customerDao = new CustomerDao();
-        AddressDao addressDao = new AddressDao();
         System.out.println("enter  name");
         String name = scanner.nextLine();
         System.out.println("enter  family");
@@ -60,8 +58,8 @@ public class CustomerService {
             Customer customer = new Customer(name, family, age, username, password, phone, email);
             customer.setAddress(address);
             customerDao.insertCustomer(customer);
-            addressDao.insertAddress(address,customer);
-            productService.addActivity(customer,"REGISTER");
+
+            productService.addActivity(customer, OperationsType.REGISTER);
             return customer;
         } else {
             throw new InvalidAccessException("username is previously selected ");

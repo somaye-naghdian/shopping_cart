@@ -1,6 +1,6 @@
 package service;
 
-import comparatos.AgeComparator;
+import utility.AgeComparator;
 import dao.AdminDao;
 import dao.OperationLogDao;
 import entity.Customer;

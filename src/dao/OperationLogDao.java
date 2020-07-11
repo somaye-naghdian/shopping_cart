@@ -2,62 +2,59 @@ package dao;
 
 import entity.Customer;
 import entity.OperationLog;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class OperationLogDao {
-    ConnectionDao connectionDao = new ConnectionDao();
+    Session session = null;
+    Transaction transaction = null;
 
     public void insertOperationLog(OperationLog operationLog, Customer customer) {
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "insert into operationlog(operation,operation_time,operation_date,customer_username)" +
-                    "values (?,?,?,(SELECT username FROM customer WHERE customer.username=?))";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, String.valueOf(operationLog.getOperation()));
-            preparedStatement.setTime(2, operationLog.getTime());
-            preparedStatement.setDate(3,  operationLog.getDate());
-            preparedStatement.setString(4, customer.getUserName());
-
-            preparedStatement.execute();
-            System.out.println("successfully insert into operationLog");
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            operationLog.setCustomer(customer);
+            session.save(operationLog);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
 
-    public ArrayList<OperationLog> getOperationList(String startDate,String endDate) {
+    public ArrayList<OperationLog> getOperationList(String inputStartDate, String inputEndDate) {
+        List<OperationLog> operationLogList = null;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "SELECT * FROM `operationlog` WHERE operation_date" +
-                    " BETWEEN '" + startDate + "' AND '" + endDate + "' ";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery(query);
-            ArrayList<OperationLog> operationLogs = new ArrayList<>();
-
-            while (resultSet.next()) {
-                OperationLog operationLog = new OperationLog();
-                operationLog.setOperation(resultSet.getString("operation"));
-                operationLog.setTime(resultSet.getTime("operation_time"));
-                operationLog.setDate(resultSet.getDate("operation_date"));
-                operationLog.setAuthority(resultSet.getString("customer_username"));
-                operationLogs.add(operationLog);
-            }
-            preparedStatement.close();
-            connection.close();
-            return operationLogs;
-        } catch (SQLException e) {
+            Date startDate = formatter.parse(inputStartDate);
+            Date endDate = formatter.parse(inputEndDate);
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from OperationLog o where o.date " +
+                    "between :startDate and :endDate ", OperationLog.class);
+            query.setParameter("startDate", startDate);
+            query.setParameter("endDate", endDate);
+            operationLogList = query.list();
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } finally{
+            session.close();
         }
-        return null;
+        return(ArrayList<OperationLog>)operationLogList;
     }
-
 
 }
-

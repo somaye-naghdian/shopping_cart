@@ -1,24 +1,28 @@
 package service;
 
-import comparatos.PriceComparator;
+import utility.PriceComparator;
 import dao.OperationLogDao;
 import dao.ProductsDao;
+import dao.ShoppingCartDao;
 import entity.Customer;
 import entity.OperationLog;
 import entity.Products;
 import entity.ShoppingCart;
 
+import java.sql.Date;
+import java.sql.Time;
 import java.util.*;
 
 public class ProductService {
     ShoppingCart shoppingCart = new ShoppingCart();
     ProductsDao productsDao = new ProductsDao();
+    ShoppingCartDao shoppingCartDao = new ShoppingCartDao();
     Products product = null;
 
 
     public void executeMenu(Customer customer) {
         List<Products> shoppingCartProduct = new ArrayList<>();
-        Map<Products,Integer> productStock=new HashMap<>();
+        Map<Products, Integer> productStock = new HashMap<>();
         Scanner scanner = new Scanner(System.in);
         Character choice;
         do {
@@ -46,13 +50,15 @@ public class ProductService {
                             shoppingCartProduct.add(product);
                             shoppingCart.setCustomer(customer);
                             shoppingCart.setItemCount(itemCount);
+                            shoppingCart.setCapacity(5);
                             shoppingCart.setProductList(shoppingCartProduct);
-                            productStock.put(product,itemCount);
+                            productStock.put(product, itemCount);
 
                             if (shoppingCartProduct.size() > shoppingCart.getCapacity()) {
                                 System.out.println(" basket is full");
                                 break;
                             }
+
                         } catch (IllegalArgumentException e) {
                             System.out.println("invalid input");
                         }
@@ -85,6 +91,8 @@ public class ProductService {
                                 shoppingCartProduct) {
                             totalPrice += item.getPrice() * shoppingCart.getItemCount();
                         }
+                        shoppingCart.setTotalPrice(totalPrice);
+
                         System.out.println(totalPrice);
                         break;
                     }
@@ -98,7 +106,8 @@ public class ProductService {
                                 shoppingCartProduct) {
                             productsDao.updateProductsStock(products.getName(), shoppingCart.getItemCount());
                         }
-                        addActivity(customer, "PURCHASE");
+                        addActivity(customer, OperationsType.PURCHASE);
+                        shoppingCartDao.insertShoppingCart(shoppingCart);
                         shoppingCartProduct.clear();
                         System.out.println(" Thank you ");
                         break;
@@ -122,12 +131,11 @@ public class ProductService {
         System.out.print("Enter an option:");
     }
 
-    public void addActivity(Customer customer, String operationType) {
-        Date date = new Date();
-        java.sql.Date today = new java.sql.Date(date.getTime());
-        long milli = 123456789999l;
-        java.sql.Time time = new java.sql.Time(milli);
-        OperationLog operationLog = new OperationLog(time, today, operationType, customer.getUserName());
+    public void addActivity(Customer customer, OperationsType operationType) {
+        long millis = System.currentTimeMillis();
+        Date date = new Date(millis);
+        Time time = new Time(millis);
+        OperationLog operationLog = new OperationLog(time, date, operationType, customer.getUserName());
         OperationLogDao operationLogDao = new OperationLogDao();
         operationLogDao.insertOperationLog(operationLog, customer);
     }

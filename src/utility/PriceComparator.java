@@ -1,4 +1,4 @@
-package comparatos;
+package utility;
 
 import entity.Products;
 

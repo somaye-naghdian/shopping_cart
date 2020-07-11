@@ -1,103 +1,109 @@
 package dao;
 
 import entity.Customer;
+import org.hibernate.*;
+import org.hibernate.criterion.Restrictions;
 
-import java.sql.*;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CustomerDao {
-    ConnectionDao connectionDao = new ConnectionDao();
+    Session session = null;
+    Transaction transaction = null;
 
     public void insertCustomer(Customer customer) {
         try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            session.save(customer);
+            transaction.commit();
 
-            Connection connection = connectionDao.getConnection();
-            String query = "insert into customer(name,family,phone,email,username,pass,age) values (?,?,?,?,?,?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, customer.getName());
-            preparedStatement.setString(2, customer.getFamily());
-            preparedStatement.setString(3, customer.getPhone());
-            preparedStatement.setString(4, customer.getEmail());
-            preparedStatement.setString(5, customer.getUserName());
-            preparedStatement.setString(6, customer.getPassword());
-            preparedStatement.setInt(7, customer.getAge());
-
-            preparedStatement.executeUpdate();
-            System.out.println("successfully insert");
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
+        System.out.println("successfully insert");
     }
 
-    public boolean searchDuplicateUserName(String username) {
-        try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select username from customer where username = '" + username + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                return false;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public Customer passwordValidation(String inputUsername, String inputPassword) {
+        List<Customer> customerList;
+        String passwordQuery = null;
+
+        Customer resultCustomer = null;
+
+        session = HibernateUtil.getSessionFactory().openSession();
+        transaction = session.beginTransaction();
+        String hql = " from Customer c where c.userName=:username ";
+        Query query = session.createQuery(hql, Customer.class);
+        query.setParameter("username", inputUsername);
+        customerList = query.list();
+
+        transaction.commit();
+        session.close();
+        for (Iterator iterator = customerList.iterator(); iterator.hasNext(); ) {
+            resultCustomer = (Customer) iterator.next();
+            passwordQuery = resultCustomer.getPassword();
         }
-        return true;
-    }
-
-    public Customer passwordValidation(String username, String password) {
-        try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select name,family,age,phone,email,username,pass" +
-                    " from customer where username = '" + username + "'and pass = '" + password + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery(query);
-            while (resultSet.next()) {
-
-                String name = resultSet.getString("name");
-                String family = resultSet.getString("family");
-                String phone = resultSet.getString("phone");
-                String email = resultSet.getString("email");
-                int age = resultSet.getInt("age");
-                Customer customer = new Customer(name, family, age, username, password, phone, email);
-                return customer;
+        if (passwordQuery.equals(inputPassword)) {
+            for (Iterator iterator = customerList.iterator(); iterator.hasNext(); ) {
+                resultCustomer = (Customer) iterator.next();
+                resultCustomer.setName(resultCustomer.getName());
+                resultCustomer.setFamily(resultCustomer.getFamily());
+                resultCustomer.setAge(resultCustomer.getAge());
+                resultCustomer.setPhone(resultCustomer.getPhone());
+                resultCustomer.setEmail(resultCustomer.getEmail());
+                resultCustomer.setUserName(resultCustomer.getUserName());
+                resultCustomer.setPassword(resultCustomer.getPassword());
+                resultCustomer.setAddress(resultCustomer.getAddress());
             }
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return null;
+        return resultCustomer;
     }
 
     public ArrayList<Customer> getCustomerList() {
+        List<Customer> customers = null;
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select * from customer ";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery(query);
-            ArrayList<Customer> customers = new ArrayList<>();
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            customers = session.createQuery("From Customer", Customer.class).list();
 
-            while (resultSet.next()) {
-                Customer customer = new Customer();
-                customer.setName(resultSet.getString("name"));
-                customer.setFamily(resultSet.getString("family"));
-                customer.setAge(resultSet.getInt("age"));
-                customer.setPhone(resultSet.getString("phone"));
-                customer.setEmail(resultSet.getString("email"));
-                customer.setUserName(resultSet.getString("username"));
-                customer.setPassword(resultSet.getString("pass"));
-                customers.add(customer);
-            }
-            preparedStatement.close();
-            connection.close();
-            return customers;
-        } catch (SQLException e) {
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return null;
+        return (ArrayList<Customer>) customers;
+    }
+
+    public boolean searchDuplicateUserName(String username) {
+        Customer customer = null;
+        try {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+
+            Criteria criteria =session.createCriteria(Customer.class,"c");
+            criteria.add(Restrictions.eq("c.userName",username));
+            List customers = criteria.list();
+            for (Iterator iterator = customers.iterator(); iterator.hasNext(); ) {
+                customer = (Customer) iterator.next();
+            }
+            if (customer != null){
+                return false;
+            }
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+        return true;
     }
 
 }

@@ -1,95 +1,93 @@
 package dao;
 
 import entity.Products;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Iterator;
+import java.util.List;
 
 public class ProductsDao {
-    ConnectionDao connectionDao = new ConnectionDao();
+    Session session = null;
+    Transaction transaction = null;
 
     public void showProductsList() {
+        List<Products> productsList;
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select * from products";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            System.out.println("______products list_____");
-            while (resultSet.next()) {
-
-                String category = resultSet.getString("category");
-                String name = resultSet.getString("name");
-                double price = resultSet.getDouble("price");
-                int stock = resultSet.getInt("stock");
-                String brand = resultSet.getString("brand");
-                System.out.println("category : " + category + "\n" +
-                        "product name :" + name + "\n" + "price :" + price + "\n" + "Brand :" +
-                        brand + "\n" + "stock :" + stock);
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from Products", Products.class);
+            productsList = query.list();
+            for (Iterator iterator = productsList.iterator(); iterator.hasNext(); ) {
+                Products product = (Products) iterator.next();
+                System.out.println("category : " + product.getCategory() + "\n" +
+                        "product name :" + product.getName() + "\n" + "price :" + product.getPrice() +
+                        "\n" + "Brand :" + product.getBrand() + "\n" + "stock :" + product.getStock());
                 System.out.println("_______________________");
+
             }
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
 
+
     public Products searchProduct(String category, String name) {
+        List<Products> productsList = null;
+        Products product = null;
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "select  * from  products where category = '" + category + "' and  name='" + name + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            Products product = new Products();
-            while (resultSet.next()) {
-                product.setProductId(resultSet.getInt("product_id"));
-                product.setName(resultSet.getString("name"));
-                product.setPrice(resultSet.getInt("price"));
-                product.setBrand(resultSet.getString("brand"));
-                product.setCategory(resultSet.getString("category"));
-                product.setStock(resultSet.getInt("stock"));
-            }
-            preparedStatement.close();
-            connection.close();
-            return product;
-        } catch (SQLException e) {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createQuery("from Products p where p.category=:category and " +
+                    "p.name=:name", Products.class);
+            query.setParameter("category", category);
+            query.setParameter("name", name);
+            productsList = query.list();
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
+        } finally {
+            session.close();
         }
-        return null;
+        for (Iterator iterator = productsList.iterator(); iterator.hasNext(); ) {
+            product = (Products) iterator.next();
+
+            product.setName(product.getName());
+            product.setCategory(product.getCategory());
+            product.setBrand(product.getBrand());
+            product.setPrice(product.getPrice());
+            product.setStock(product.getStock());
+        }
+        return product;
     }
 
     public void updateProductsStock(String name, int itemCount) {
+        List<Products> productsList = null;
+        Products product = null;
         try {
-            Connection connection = connectionDao.getConnection();
-            String query = "update products set products.stock =products.stock-? where  products.name like '" + name + "'";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, itemCount);
-            preparedStatement.executeUpdate();
-            System.out.println("products stock updated");
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
+            session = HibernateUtil.getSessionFactory().openSession();
+            transaction = session.beginTransaction();
+            Query query = session.createQuery(" from Products p where p.name=:name", Products.class);
+            query.setParameter("name", name);
+            productsList = query.list();
+            for (Iterator iterator = productsList.iterator(); iterator.hasNext(); ) {
+                product = (Products) iterator.next();
+                product.setStock(product.getStock() - itemCount);
+            }
+            session.update(product);
+            transaction.commit();
+        } catch (HibernateException e) {
+            if (transaction != null) transaction.rollback();
             e.printStackTrace();
-        }
-    }
-
-    public void insertProduct(Products product) {
-        try {
-            Connection connection = connectionDao.getConnection();
-            String query = "insert into products (category,price,stock,brand) values (?,?,?,?)";
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, product.getCategory());
-            preparedStatement.setDouble(2, product.getPrice());
-            preparedStatement.setInt(3, product.getStock());
-            preparedStatement.setString(4, product.getBrand());
-            preparedStatement.executeUpdate();
-            System.out.println("successfully insert");
-            preparedStatement.close();
-            connection.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } finally {
+            session.close();
         }
     }
 }

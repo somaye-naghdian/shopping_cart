@@ -1,0 +1,8 @@
+
+CREATE TABLE customer(username varchar(20) NOT null PRIMARY key ,name varchar(40),family varchar(40),phone varchar(20),email varchar(100),pass varchar(10)) 
+
+CREATE table products(product_id int not null PRIMARY key AUTO_INCREMENT,name varchar(40),price double,stock int,brand varchar(40)) 
+ 
+alter table customer add age int 
+
+CREATE TABLE address (province varchar(40) ,city varchar(40),street varchar(40),zipCode int,customer_username varchar(20),CONSTRAINT fk_address_employee FOREIGN KEY(customer_username) REFERENCES customer(username)) 

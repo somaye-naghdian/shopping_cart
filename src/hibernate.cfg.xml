@@ -17,7 +17,6 @@
         <mapping class="entity.User"/>
         <mapping class="entity.Address"/>
         <mapping class="entity.Products"/>
-        <mapping class="entity.ShoppingCart"/>
         <mapping class="entity.OperationLog"/>
     </session-factory>
 </hibernate-configuration>

@@ -1,20 +1,26 @@
 package view;
 
 import entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import service.AdminService;
-import service.ShoppingCartService;
+import service.PurchaseService;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class StartUp {
+@Component
+public class Startup {
+    @Autowired
+    private CustomerView customerView;
+    @Autowired
+    private AdminView adminView;
+    @Autowired
+    private PurchaseService purchaseService;
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
-        CustomerView customerView = new CustomerView();
-        ShoppingCartService shoppingCartService = new ShoppingCartService();
-        AdminView adminView = new AdminView();
-        AdminService adminService =new AdminService();
+
         int input = 0;
         System.out.print("  Log in     - press 1" + "\n" + "new customer - press 2\n" +
                 "\tAdmin    - press 3\n");
@@ -27,11 +33,11 @@ public class StartUp {
                 }
                 case 2: {
                     User customer = customerView.customerRegister();
-                    shoppingCartService.executeMenu(customer);
+                    purchaseService.executeMenu(customer);
                     break;
                 }
                 case 3: {
-                    adminService.createAdmin();
+
                     adminView.loginAdmin();
                     break;
                 }

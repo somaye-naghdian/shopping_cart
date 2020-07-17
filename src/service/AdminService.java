@@ -5,6 +5,8 @@ import dao.UserDao;
 import entity.Address;
 import entity.OperationLog;
 import entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import utility.AgeComparator;
 
 import java.text.ParseException;
@@ -14,17 +16,12 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class AdminService {
-    UserDao userDao = new UserDao();
-    ArrayList<User> adminList = new ArrayList<>();
-
-    public boolean validate(User admin) {
-        System.out.println(adminList);
-        if (adminList.contains(admin)) {
-            return true;
-        }
-        return false;
-    }
+    @Autowired
+    UserDao userDao;
+    @Autowired
+    OperationLogDao operationLogDao;
 
     public void getCustomerAge() {
         ArrayList<User> customers;
@@ -47,7 +44,7 @@ public class AdminService {
         c.add(Calendar.DAY_OF_MONTH, 30);
         String endDate = sdf.format(c.getTime());
 
-        OperationLogDao operationLogDao = new OperationLogDao();
+
         List<OperationLog> operationLogs = operationLogDao.getOperationList(inputDate, endDate);
         for (OperationLog operationLog :
                 operationLogs) {
@@ -58,7 +55,7 @@ public class AdminService {
         }
     }
 
-    public void createAdmin() {
+  /*  public void createAdmin() {
 
         User admin1 = new User();
         admin1.setName("admin1");
@@ -81,6 +78,6 @@ public class AdminService {
         userDao.insertUser(admin1);
         adminList.add(admin1);
     }
-
+*/
 
 }

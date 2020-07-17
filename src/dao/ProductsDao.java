@@ -3,23 +3,28 @@ package dao;
 import entity.Products;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-
+@Component
 public class ProductsDao {
 
+    @Autowired
+    private SessionFactory sessionFactory;
 
     public void showProductsList(String productCategory) {
         List<Products> productsList;
         try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
+            Session session =sessionFactory.openSession();
             Transaction  transaction = session.beginTransaction();
 
             Criteria criteria = session.createCriteria(Products.class);
@@ -46,7 +51,7 @@ public class ProductsDao {
         List<Products> productsList = null;
         Products product = null;
         try {
-            Session  session = HibernateUtil.getSessionFactory().openSession();
+            Session  session = sessionFactory.openSession();
             Transaction  transaction = session.beginTransaction();
             Query query = session.createQuery("from Products p where p.category=:category and " +
                     "p.name=:name", Products.class);
@@ -75,7 +80,7 @@ public class ProductsDao {
         List<Products> productsList ;
         Products product = null;
         try {
-            Session   session = HibernateUtil.getSessionFactory().openSession();
+            Session   session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             Query query = session.createQuery("from Products p where p.name=:name", Products.class);
             query.setParameter("name", name);
@@ -95,7 +100,7 @@ public class ProductsDao {
     public void printCategory() {
         Object categories;
         try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
+            Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             Criteria criteria = session.createCriteria(Products.class);
             ProjectionList projectionList = Projections.projectionList();

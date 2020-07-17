@@ -5,14 +5,19 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+@Component
 public class UserDao {
+    @Autowired
+    private SessionFactory sessionFactory;
 
     private static Logger logger;
     public void insertUser(User user) {
@@ -20,7 +25,7 @@ public class UserDao {
         logger.info("register");
 
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try {
             session.save(user);
@@ -40,7 +45,7 @@ public class UserDao {
 
         User resultUser = null;
 
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         Criteria criteria = session.createCriteria(User.class, "u");
         criteria.add(Restrictions.eq("u.userName", inputUsername));
@@ -67,6 +72,7 @@ public class UserDao {
             }
         }
         }catch (NullPointerException e){
+            System.out.println("invalid username or password");
             e.printStackTrace();
         }
         return resultUser;
@@ -76,7 +82,7 @@ public class UserDao {
     public ArrayList<User> getUserList() {
         List<User> users = null;
         try {
-            Session session = HibernateUtil.getSessionFactory().openSession();
+            Session session = sessionFactory.openSession();
             Transaction transaction = session.beginTransaction();
             users = session.createQuery("from User", User.class).list();
 
@@ -91,7 +97,7 @@ public class UserDao {
     public boolean searchDuplicateUserName(String username) {
         User user = null;
         try {
-          Session  session = HibernateUtil.getSessionFactory().openSession();
+          Session  session =sessionFactory.openSession();
            Transaction transaction = session.beginTransaction();
 
             Criteria criteria = session.createCriteria(User.class, "u");

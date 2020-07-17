@@ -1,24 +1,27 @@
 package service;
 
 import dao.ProductsDao;
-import dao.ShoppingCartDao;
+
 import entity.Products;
 import entity.ShoppingCart;
 import entity.User;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import utility.PriceComparator;
 
 import java.util.*;
+@Component
+public class PurchaseService {
+    @Autowired
+    ProductsDao productsDao ;
 
-public class ShoppingCartService {
-    ShoppingCart shoppingCart = new ShoppingCart();
-    ProductsDao productsDao = new ProductsDao();
-    ShoppingCartDao shoppingCartDao = new ShoppingCartDao();
-    Products product = null;
+
     private static Logger logger;
     List<Products> shoppingCartProduct = new ArrayList<>();
-
+    ShoppingCart shoppingCart = new ShoppingCart();
+    Products product = null;
     public void executeMenu(User customer) {
 
         Map<Products, Integer> productStock = new HashMap<>();
@@ -63,8 +66,6 @@ public class ShoppingCartService {
                             shoppingCart.setItemCount(itemCount);
                             shoppingCart.setProductList(shoppingCartProduct);
                             productStock.put(product, itemCount);
-                            shoppingCartDao.insertShoppingCart(shoppingCart);
-
 
                             logger = LogManager.getLogger(customer.getUserName());
                             logger.info("add");
@@ -120,7 +121,6 @@ public class ShoppingCartService {
                         logger.info("PURCHASE");
 
                         shoppingCartProduct.clear();
-                        shoppingCartDao.deleteFromShoppingCart(shoppingCart);
                         System.out.println(" Thank you ");
                         break;
                     }

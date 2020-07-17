@@ -13,8 +13,8 @@ public class Products {
     private double price;
     private int stock;
     private String brand;
-    @ManyToOne
-    private ShoppingCart shoppingCart;
+
+   /* private ShoppingCart shoppingCart;
 
     public ShoppingCart getShoppingCart() {
         return shoppingCart;
@@ -23,7 +23,7 @@ public class Products {
     public void setShoppingCart(ShoppingCart shoppingCart) {
         this.shoppingCart = shoppingCart;
     }
-
+*/
     public double getPrice() {
         return price;
     }

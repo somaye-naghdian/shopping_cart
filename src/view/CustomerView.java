@@ -3,8 +3,10 @@ package view;
 import dao.UserDao;
 import entity.Address;
 import entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import service.CustomerService;
-import service.ShoppingCartService;
+import service.PurchaseService;
 import sun.plugin.dom.exception.InvalidAccessException;
 
 import java.util.Objects;
@@ -12,10 +14,12 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class CustomerView {
-    CustomerService customerService = new CustomerService();
-    static ShoppingCartService shoppingCartService = new ShoppingCartService();
-
+    @Autowired
+    private CustomerService customerService;
+    @Autowired
+    private UserDao userDao;
     Scanner scanner = new Scanner(System.in);
 
     public void loginCustomer() {
@@ -24,13 +28,10 @@ public class CustomerView {
         String username = scanner.next();
         System.out.println("enter password : ");
         String password = scanner.next();
-       customerService.signIn(username,password);
+        customerService.signIn(username, password);
     }
 
     public User customerRegister() {
-
-        UserDao userDao = new UserDao();
-
         System.out.println("enter  name");
         String name = scanner.nextLine();
         System.out.println("enter  family");
